@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS EVENTS — Arena Competitiva Oficial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --red: #e8000f;
+    --red-dim: #a0000a;
+    --red-glow: rgba(232,0,15,0.6);
+    --red-subtle: rgba(232,0,15,0.15);
+    --red-border: rgba(232,0,15,0.4);
+    --black: #020204;
+    --black-deep: #000000;
+    --black-card: #06070d;
+    --black-panel: #0a0b13;
+    --white: #ffffff;
+    --white-dim: rgba(255,255,255,0.7);
+    --white-subtle: rgba(255,255,255,0.08);
+    --grey: #2a2a3a;
+    --grey-light: #4a4a6a;
+    --font-display: 'Orbitron', monospace;
+    --font-body: 'Rajdhani', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black-deep);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+  /* SCANLINES */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanlineShift 8s linear infinite;
+  }
+  @keyframes scanlineShift { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+
+  /* CORNERS */
+  .corner-deco { position: fixed; width: 60px; height: 60px; z-index: 100; pointer-events: none; }
+  .corner-deco.tl { top: 12px; left: 12px; border-top: 2px solid var(--red); border-left: 2px solid var(--red); }
+  .corner-deco.tr { top: 12px; right: 12px; border-top: 2px solid var(--red); border-right: 2px solid var(--red); }
+  .corner-deco.bl { bottom: 12px; left: 12px; border-bottom: 2px solid var(--red); border-left: 2px solid var(--red); }
+  .corner-deco.br { bottom: 12px; right: 12px; border-bottom: 2px solid var(--red); border-right: 2px solid var(--red); }
+
+  /* HEADER */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    height: 70px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.97) 0%, rgba(2,2,8,0.92) 100%);
+    border-bottom: 1px solid var(--red-border);
+    display: flex; align-items: center; padding: 0 40px; justify-content: space-between;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  header::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red), var(--red-glow), var(--red), transparent);
+    animation: headerLine 4s ease-in-out infinite;
+  }
+  @keyframes headerLine { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+
+  .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; }
+  .logo-icon { width: 38px; height: 38px; }
+  .logo-icon svg { width: 100%; height: 100%; }
+  .logo-text {
+    font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 4px;
+    color: var(--white); text-shadow: 0 0 20px var(--red-glow), 0 0 40px rgba(232,0,15,0.3);
+  }
+  .logo-text::after {
+    content: 'EVENTS'; display: block; font-size: 9px; letter-spacing: 6px;
+    color: var(--red); font-weight: 600; margin-top: -4px; text-shadow: none;
+  }
+
+  nav { display: flex; align-items: center; gap: 32px; }
+  nav a {
+    font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 3px;
+    color: var(--white-dim); text-decoration: none; text-transform: uppercase; position: relative; transition: color .3s;
+  }
+  nav a::after {
+    content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 1px;
+    background: var(--red); transform: scaleX(0); transition: transform .3s;
+  }
+  nav a:hover { color: var(--white); }
+  nav a:hover::after { transform: scaleX(1); }
+
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .status-indicator { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--red); letter-spacing: 1px; }
+  .status-dot { width: 7px; height: 7px; background: var(--red); border-radius: 50%; box-shadow: 0 0 8px var(--red); animation: statusPulse 2s ease-in-out infinite; }
+  @keyframes statusPulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px var(--red); } 50% { opacity: .4; box-shadow: 0 0 4px var(--red); } }
+
+  .btn-discord {
+    display: flex; align-items: center; gap: 10px; padding: 10px 22px;
+    background: linear-gradient(135deg, var(--red) 0%, #b0000c 100%);
+    color: var(--white); font-family: var(--font-display); font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; border: none; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all .3s; text-decoration: none; position: relative;
+  }
+  .btn-discord::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    clip-path: inherit; opacity: 0; transition: opacity .3s;
+  }
+  .btn-discord:hover { box-shadow: 0 0 30px var(--red-glow), 0 0 60px rgba(232,0,15,0.2); transform: translateY(-1px); }
+  .btn-discord:hover::before { opacity: 1; }
+  .discord-icon { width: 18px; height: 18px; fill: white; flex-shrink: 0; }
+
+  /* HERO */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding-top: 70px;
+  }
+  #heroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 1;
+    background-image: linear-gradient(rgba(232,0,15,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(232,0,15,0.04) 1px, transparent 1px);
+    background-size: 60px 60px; animation: gridPulse 4s ease-in-out infinite;
+  }
+  @keyframes gridPulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+
+  .hero-lines { position: absolute; inset: 0; z-index: 2; overflow: hidden; }
+  .hero-lines::before, .hero-lines::after {
+    content: ''; position: absolute; width: 200%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--red-border), var(--red), var(--red-border), transparent);
+  }
+  .hero-lines::before { top: 30%; transform: rotate(-15deg) translateX(-25%); animation: lineSweep 6s ease-in-out infinite; }
+  .hero-lines::after { bottom: 30%; transform: rotate(-15deg) translateX(-25%); animation: lineSweep 6s ease-in-out infinite 3s; }
+  @keyframes lineSweep {
+    0% { opacity: 0; transform: rotate(-15deg) translateX(-30%); }
+    50% { opacity: .6; }
+    100% { opacity: 0; transform: rotate(-15deg) translateX(-20%); }
+  }
+
+  .hero-glow {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 900px; height: 900px;
+    background: radial-gradient(ellipse, rgba(232,0,15,0.12) 0%, rgba(180,0,10,0.06) 30%, transparent 70%);
+    z-index: 2; animation: glowBreath 4s ease-in-out infinite;
+  }
+  @keyframes glowBreath {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .8; }
+    50% { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
+  }
+
+  .hero-content { position: relative; z-index: 10; text-align: center; max-width: 900px; padding: 0 40px; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px;
+    border: 1px solid var(--red-border); background: rgba(232,0,15,0.08);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 4px; color: var(--red);
+    text-transform: uppercase; margin-bottom: 32px;
+    animation: fadeSlideDown 1s ease 0.2s both;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px; background: var(--red);
+    border-radius: 50%; box-shadow: 0 0 8px var(--red); animation: statusPulse 2s infinite;
+  }
+  @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hero-title {
+    font-family: var(--font-display); font-size: clamp(64px, 10vw, 120px); font-weight: 900;
+    line-height: .9; letter-spacing: -2px; text-transform: uppercase; margin-bottom: 12px;
+    animation: fadeSlideUp 1s ease 0.4s both;
+  }
+  .hero-title .word-nexus {
+    display: block;
+    background: linear-gradient(135deg, #fff 0%, #ccc 40%, #fff 60%, #aaa 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 40px rgba(255,255,255,0.2));
+  }
+  .hero-title .word-events {
+    display: block;
+    background: linear-gradient(135deg, var(--red) 0%, #ff2233 40%, var(--red) 70%, #cc0009 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 40px var(--red-glow)); animation: textFlicker 8s ease-in-out infinite;
+  }
+  @keyframes textFlicker {
+    0%,95%,100% { filter: drop-shadow(0 0 40px var(--red-glow)); }
+    96% { filter: drop-shadow(0 0 60px var(--red-glow)) brightness(1.2); }
+    97% { filter: drop-shadow(0 0 40px var(--red-glow)); }
+    98% { filter: drop-shadow(0 0 55px var(--red-glow)) brightness(1.1); }
+  }
+  @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hero-subtitle {
+    font-family: var(--font-body); font-size: clamp(16px, 2vw, 20px); font-weight: 400;
+    color: var(--white-dim); letter-spacing: 2px; margin-bottom: 50px;
+    animation: fadeSlideUp 1s ease 0.6s both;
+  }
+  .hero-subtitle span { color: var(--red); font-weight: 600; }
+
+  .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; animation: fadeSlideUp 1s ease 0.8s both; }
+
+  .btn-primary {
+    display: flex; align-items: center; gap: 12px; padding: 16px 36px;
+    background: linear-gradient(135deg, var(--red) 0%, #cc0009 100%); color: white;
+    font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; border: none; cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all .3s; position: relative; overflow: hidden; text-decoration: none;
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left .5s;
+  }
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:hover { box-shadow: 0 0 40px var(--red-glow), 0 8px 30px rgba(232,0,15,0.3); transform: translateY(-2px); }
+
+  .btn-secondary {
+    display: flex; align-items: center; gap: 12px; padding: 16px 36px;
+    background: transparent; color: white; font-family: var(--font-display); font-size: 13px;
+    font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all .3s; text-decoration: none;
+  }
+  .btn-secondary:hover { border-color: var(--red); background: var(--red-subtle); box-shadow: 0 0 20px rgba(232,0,15,0.2); transform: translateY(-2px); }
+
+  /* HERO EVENT COUNT — só 1 stat dinâmico */
+  .hero-stat-single {
+    display: flex; align-items: center; justify-content: center; gap: 20px;
+    margin-top: 70px; animation: fadeSlideUp 1s ease 1s both;
+  }
+  .stat-divider { width: 1px; height: 50px; background: linear-gradient(180deg, transparent, var(--red-border), transparent); }
+  .stat-item { text-align: center; }
+  .stat-number { font-family: var(--font-display); font-size: 36px; font-weight: 900; color: var(--red); text-shadow: 0 0 20px var(--red-glow); display: block; line-height: 1; }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--white-dim); text-transform: uppercase; margin-top: 6px; display: block; }
+
+  /* SECTIONS */
+  section { padding: 100px 0; }
+  .container { max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+  .section-header { margin-bottom: 60px; }
+  .section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 5px; color: var(--red); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .section-label::before { content: ''; width: 30px; height: 1px; background: var(--red); }
+  .section-title { font-family: var(--font-display); font-size: clamp(32px, 5vw, 52px); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; line-height: 1; }
+  .section-title span { color: var(--red); }
+
+  /* EVENTS */
+  #eventos { background: var(--black); }
+
+  .events-filter { display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap; align-items: center; }
+  .filter-btn {
+    padding: 8px 20px; font-family: var(--font-display); font-size: 10px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase; border: 1px solid var(--grey);
+    background: transparent; color: var(--white-dim); cursor: pointer; transition: all .3s;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .filter-btn.active, .filter-btn:hover { border-color: var(--red); color: var(--white); background: var(--red-subtle); box-shadow: 0 0 15px rgba(232,0,15,0.2); }
+  #filter-search {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--grey); color: var(--white);
+    padding: 8px 16px; font-family: var(--font-mono); font-size: 11px; outline: none; transition: all .3s;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%); letter-spacing: 1px;
+  }
+  #filter-search:focus { border-color: var(--red); background: rgba(232,0,15,0.06); }
+  #filter-search::placeholder { color: var(--grey-light); }
+
+  .events-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+
+  .event-card {
+    background: var(--black-card); border: 1px solid var(--grey); position: relative;
+    overflow: hidden; cursor: pointer;
+    transition: all .4s cubic-bezier(.25,.46,.45,.94);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  }
+  .event-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--red-subtle), transparent 50%);
+    opacity: 0; transition: opacity .4s; z-index: 1;
+  }
+  .event-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--red), #ff4455, var(--red));
+    transform: scaleX(0); transform-origin: left; transition: transform .4s; z-index: 2;
+  }
+  .event-card:hover { border-color: var(--red-border); transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(232,0,15,0.15); }
+  .event-card:hover::before { opacity: 1; }
+  .event-card:hover::after { transform: scaleX(1); }
+
+  .card-banner { width: 100%; height: 200px; position: relative; overflow: hidden; }
+  .card-banner-img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s; }
+  .event-card:hover .card-banner-img { transform: scale(1.06); }
+  .card-banner-placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0a0b12 0%, #080912 100%); position: relative; overflow: hidden;
+  }
+  .card-banner-placeholder::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--red-subtle), transparent); }
+  .card-banner-text {
+    font-family: var(--font-display); font-size: 52px; font-weight: 900;
+    color: rgba(255,255,255,0.04); letter-spacing: 0; position: relative; z-index: 1; text-transform: uppercase;
+  }
+
+  .card-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, transparent 100%); z-index: 1; }
+  .card-status {
+    position: absolute; top: 12px; left: 12px; z-index: 2;
+    display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+    background: rgba(0,0,0,0.85); border: 1px solid var(--red-border);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--red);
+    text-transform: uppercase; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .card-status.inscricoes { color: #00ff88; border-color: rgba(0,255,136,0.4); }
+  .card-status.inscricoes .status-dot { background: #00ff88; box-shadow: 0 0 8px #00ff88; }
+  .card-status.encerrado { color: #888; border-color: rgba(136,136,136,0.4); }
+  .card-status.encerrado .status-dot { background: #888; box-shadow: none; }
+
+  .card-prize {
+    position: absolute; top: 12px; right: 12px; z-index: 2; padding: 5px 12px;
+    background: rgba(232,0,15,0.15); border: 1px solid var(--red-border);
+    font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--red);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 100%, 4px 100%);
+  }
+
+  .card-body { padding: 20px; position: relative; z-index: 2; }
+  .card-category {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--red);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .card-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: 1px; color: var(--white); margin-bottom: 12px; line-height: 1.2; }
+  .card-meta { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .card-meta-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-body); font-size: 13px; color: var(--white-dim); }
+  .meta-icon { font-size: 14px; }
+
+  .card-countdown {
+    background: rgba(232,0,15,0.08); border: 1px solid var(--red-border); padding: 10px 14px;
+    display: flex; gap: 16px; align-items: center; justify-content: space-between; margin-bottom: 16px;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .countdown-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }
+  .countdown-time { display: flex; gap: 8px; align-items: center; }
+  .countdown-unit { text-align: center; }
+  .countdown-val { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--white); display: block; line-height: 1; }
+  .countdown-sep { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--red); margin-top: -4px; }
+  .countdown-unit-label { font-family: var(--font-mono); font-size: 8px; color: var(--white-dim); letter-spacing: 1px; display: block; margin-top: 2px; }
+
+  .card-action {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, var(--red) 0%, #aa0009 100%); border: none; color: white;
+    font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: all .3s; position: relative; overflow: hidden;
+  }
+  .card-action::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transition: left .4s;
+  }
+  .card-action:hover::before { left: 100%; }
+  .card-action:hover { box-shadow: 0 0 25px rgba(232,0,15,0.5); }
+
+  .events-empty {
+    text-align: center; padding: 80px 20px;
+    font-family: var(--font-display); font-size: 16px; letter-spacing: 3px;
+    color: var(--grey-light); text-transform: uppercase;
+  }
+  .events-empty span { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--grey); margin-top: 12px; letter-spacing: 2px; }
+
+  /* CALENDAR */
+  #calendario { background: var(--black-panel); }
+  .calendar-wrap { max-width: 700px; margin: 0 auto; }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+  .cal-month { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+  .cal-nav {
+    width: 40px; height: 40px; background: var(--black-card); border: 1px solid var(--grey); color: var(--white);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .3s; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .cal-nav:hover { border-color: var(--red); background: var(--red-subtle); }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+  .cal-weekday { text-align: center; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--white-dim); padding: 8px 0; text-transform: uppercase; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day {
+    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--black-card); border: 1px solid transparent;
+    font-family: var(--font-display); font-size: 14px; font-weight: 600; color: var(--white-dim);
+    cursor: pointer; position: relative; transition: all .3s; gap: 4px;
+  }
+  .cal-day.empty { background: transparent; cursor: default; pointer-events: none; }
+  .cal-day.today { border-color: rgba(255,255,255,0.3); color: var(--white); }
+  .cal-day.has-event { border-color: var(--red-border); color: var(--white); background: rgba(232,0,15,0.08); animation: dayPulse 3s ease-in-out infinite; }
+  @keyframes dayPulse { 0%,100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 12px rgba(232,0,15,0.3); } }
+  .cal-day.has-event::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .cal-day:not(.empty):hover { border-color: var(--red); background: var(--red-subtle); color: var(--white); transform: scale(1.05); }
+
+  /* ADMIN PANEL */
+  #admin-panel { display: none; background: var(--black-deep); padding: 100px 0 60px; }
+  #admin-panel.visible { display: block; }
+
+  .admin-header-bar {
+    background: linear-gradient(90deg, rgba(232,0,15,0.12) 0%, transparent 100%);
+    border: 1px solid var(--red-border); border-left: 4px solid var(--red);
+    padding: 20px 30px; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  }
+  .admin-title { font-family: var(--font-display); font-size: 24px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: var(--red); text-shadow: 0 0 20px var(--red-glow); }
+  .admin-id { font-family: var(--font-mono); font-size: 12px; color: var(--white-dim); letter-spacing: 2px; }
+
+  .admin-grid { display: grid; grid-template-columns: 280px 1fr; gap: 30px; min-height: 600px; }
+  .admin-sidebar { background: var(--black-card); border: 1px solid var(--grey); overflow: hidden; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+  .admin-sidebar-header { padding: 16px 20px; background: rgba(232,0,15,0.1); border-bottom: 1px solid var(--red-border); font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--red); text-transform: uppercase; }
+  .admin-nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer;
+    font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--white-dim);
+    transition: all .2s; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .admin-nav-item:hover, .admin-nav-item.active { background: var(--red-subtle); color: var(--white); border-left: 3px solid var(--red); padding-left: 17px; }
+  .admin-nav-icon { font-size: 16px; }
+
+  .admin-main { display: flex; flex-direction: column; gap: 24px; }
+  .admin-stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .admin-stat-card {
+    background: var(--black-card); border: 1px solid var(--grey); padding: 20px;
+    position: relative; overflow: hidden;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .admin-stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--red); }
+  .admin-stat-num { font-family: var(--font-display); font-size: 32px; font-weight: 900; color: var(--white); display: block; }
+  .admin-stat-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--white-dim); text-transform: uppercase; margin-top: 4px; display: block; }
+
+  .admin-form-panel { background: var(--black-card); border: 1px solid var(--grey); padding: 24px; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+  .admin-form-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--red-border); color: var(--white); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }
+  .form-input, .form-select, .form-textarea {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--grey); color: var(--white);
+    padding: 12px 16px; font-family: var(--font-body); font-size: 14px; outline: none;
+    transition: all .3s; width: 100%; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--red); background: rgba(232,0,15,0.06); box-shadow: 0 0 15px rgba(232,0,15,0.1); }
+  .form-select option { background: #0a0b13; }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .btn-admin {
+    padding: 14px 30px; background: linear-gradient(135deg, var(--red) 0%, #aa0009 100%);
+    border: none; color: white; font-family: var(--font-display); font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); transition: all .3s;
+  }
+  .btn-admin:hover { box-shadow: 0 0 25px rgba(232,0,15,0.5); transform: translateY(-1px); }
+
+  /* USER PANEL */
+  #user-panel {
+    display: none; background: var(--black-panel); padding: 12px 40px;
+    border-bottom: 1px solid var(--red-border);
+    position: fixed; top: 70px; left: 0; right: 0; z-index: 400;
+  }
+  #user-panel.visible { display: flex; align-items: center; justify-content: space-between; }
+  .user-info { display: flex; align-items: center; gap: 16px; }
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--red);
+    overflow: hidden; background: linear-gradient(135deg, var(--red), #660004);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .user-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 2px; }
+  .user-role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--red); text-transform: uppercase; }
+  .user-id-display { font-family: var(--font-mono); font-size: 11px; color: var(--white-dim); letter-spacing: 1px; }
+  .btn-logout {
+    padding: 8px 20px; background: transparent; border: 1px solid var(--grey); color: var(--white-dim);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; transition: all .3s; clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(10px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--black-card); border: 1px solid var(--red-border); max-width: 600px; width: 100%;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    transform: translateY(20px) scale(.97); transition: transform .3s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-header { padding: 24px; border-bottom: 1px solid var(--red-border); background: rgba(232,0,15,0.06); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .modal-close { width: 32px; height: 32px; background: rgba(232,0,15,0.1); border: 1px solid var(--red-border); color: var(--white); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
+  .modal-close:hover { background: var(--red); }
+  .modal-body { padding: 24px; }
+  .modal-detail { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; font-size: 15px; color: var(--white-dim); }
+  .modal-detail-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--red); text-transform: uppercase; min-width: 90px; margin-top: 2px; }
+  .modal-footer { padding: 20px 24px; border-top: 1px solid var(--grey); }
+
+  /* SOBRE */
+  #sobre { background: var(--black-panel); }
+
+  /* FOOTER */
+  footer { background: var(--black-deep); border-top: 1px solid var(--red-border); padding: 50px 0 30px; }
+  .footer-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+  .footer-brand .logo-text { font-size: 28px; margin-bottom: 12px; display: inline-block; }
+  .footer-desc { font-size: 14px; color: var(--white-dim); line-height: 1.7; font-family: var(--font-body); }
+  .footer-col-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--red); margin-bottom: 20px; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a { color: var(--white-dim); text-decoration: none; font-size: 14px; font-family: var(--font-body); transition: color .2s; display: flex; align-items: center; gap: 8px; }
+  .footer-links a::before { content: '›'; color: var(--red); }
+  .footer-links a:hover { color: var(--white); }
+  .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer-copy { font-family: var(--font-mono); font-size: 11px; color: var(--grey-light); letter-spacing: 1px; }
+  .footer-copy span { color: var(--red); }
+
+  /* NOTIFICATION */
+  .notification {
+    position: fixed; bottom: 30px; right: 30px; z-index: 2000; background: var(--black-card);
+    border: 1px solid var(--red-border); border-left: 3px solid var(--red); padding: 16px 20px; max-width: 340px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    transform: translateX(120%); transition: transform .4s cubic-bezier(.25,.46,.45,.94);
+  }
+  .notification.show { transform: translateX(0); }
+  .notif-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .notif-msg { font-family: var(--font-body); font-size: 13px; color: var(--white-dim); }
+
+  /* LOGIN MODAL */
+  #login-modal .modal { max-width: 460px; }
+  .login-modal-desc {
+    font-family: var(--font-mono); font-size: 11px; color: var(--white-dim);
+    letter-spacing: 1px; line-height: 1.8; margin-bottom: 24px;
+    padding: 14px; background: rgba(232,0,15,0.06); border: 1px solid var(--red-border);
+  }
+  .login-input-wrap { position: relative; margin-bottom: 8px; }
+  .login-input {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--grey); color: var(--white);
+    padding: 14px 16px; font-family: var(--font-mono); font-size: 14px; outline: none;
+    transition: all .3s; width: 100%; letter-spacing: 2px;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+  }
+  .login-input:focus { border-color: var(--red); background: rgba(232,0,15,0.06); box-shadow: 0 0 15px rgba(232,0,15,0.1); }
+  .login-input::placeholder { color: var(--grey-light); letter-spacing: 1px; }
+  .login-input.invalid { border-color: var(--red); animation: shake .3s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .login-input-error {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--red);
+    text-transform: uppercase; margin-bottom: 16px; display: none; padding: 0 4px;
+  }
+  .login-input-error.show { display: block; }
+
+  /* INTEREST SYSTEM */
+  .card-interest-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; gap: 10px;
+  }
+  .btn-interest {
+    flex: 1; padding: 9px 12px; background: transparent;
+    border: 1px solid var(--grey); color: var(--white-dim);
+    font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; cursor: pointer; transition: all .3s;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-interest:hover { border-color: var(--red); color: var(--white); background: var(--red-subtle); }
+  .btn-interest.active {
+    background: linear-gradient(135deg, var(--red) 0%, #aa0009 100%);
+    border-color: var(--red); color: var(--white);
+    box-shadow: 0 0 15px rgba(232,0,15,0.4);
+  }
+  .interest-count-btn {
+    padding: 9px 14px; background: rgba(255,255,255,0.04);
+    border: 1px solid var(--grey); color: var(--white-dim);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
+    cursor: pointer; transition: all .3s; white-space: nowrap;
+    clip-path: polygon(4px 0%, 100% 0%, calc(100% - 4px) 100%, 0% 100%);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .interest-count-btn:hover { border-color: var(--red); color: var(--white); }
+  .interest-count-num { color: var(--red); font-weight: 700; }
+
+  /* INTERESTED LIST MODAL */
+  #interested-modal .modal { max-width: 500px; }
+  .interested-list { display: flex; flex-direction: column; gap: 10px; }
+  .interested-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+  }
+  .interested-avatar {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--red-border);
+    background: linear-gradient(135deg, var(--red-dim), #330003);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .interested-name { font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+  .interested-id { font-family: var(--font-mono); font-size: 10px; color: var(--white-dim); letter-spacing: 1px; margin-top: 2px; }
+  .interested-empty { font-family: var(--font-mono); font-size: 12px; color: var(--white-dim); letter-spacing: 2px; padding: 20px 0; text-align: center; }
+
+  /* OAUTH LOADING */
+  .oauth-loading {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 5000;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    backdrop-filter: blur(20px);
+  }
+  .oauth-loading.show { display: flex; }
+  .oauth-spinner {
+    width: 60px; height: 60px; border: 3px solid rgba(232,0,15,0.2);
+    border-top-color: var(--red); border-radius: 50%; animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .oauth-text { font-family: var(--font-display); font-size: 14px; letter-spacing: 4px; color: var(--white); text-transform: uppercase; }
+  .oauth-sub { font-family: var(--font-mono); font-size: 11px; color: var(--white-dim); letter-spacing: 2px; }
+
+  /* ANIMATIONS */
+  .fade-in { opacity: 0; transform: translateY(30px); transition: all .7s cubic-bezier(.25,.46,.45,.94); }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .footer-top { grid-template-columns: 1fr; }
+    .admin-grid { grid-template-columns: 1fr; }
+    .admin-stats-row { grid-template-columns: 1fr 1fr; }
+    nav { display: none; }
+    .hero-stat-single { gap: 16px; }
+    .events-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    header { padding: 0 20px; }
+    .container { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="corner-deco tl"></div>
+<div class="corner-deco tr"></div>
+<div class="corner-deco bl"></div>
+<div class="corner-deco br"></div>
+
+<div class="oauth-loading" id="oauth-loading">
+  <div class="oauth-spinner"></div>
+  <div class="oauth-text">AUTENTICANDO</div>
+  <div class="oauth-sub">CONECTANDO COM DISCORD...</div>
+</div>
+
+<div class="notification" id="notification">
+  <div class="notif-title" id="notif-title">NEXUS</div>
+  <div class="notif-msg" id="notif-msg"></div>
+</div>
+
+<div id="user-panel">
+  <div class="user-info">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <div>
+      <div class="user-name" id="user-name-display">—</div>
+      <div class="user-role" id="user-role-display">JOGADOR</div>
+    </div>
+  </div>
+  <div class="user-id-display" id="user-id-display"></div>
+  <button class="btn-logout" onclick="logout()">SAIR</button>
+</div>
+
+<header>
+  <a class="logo-wrap" href="#" onclick="scrollToTop()">
+    <div class="logo-icon">
+      <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="19,2 36,10 36,28 19,36 2,28 2,10" fill="none" stroke="#e8000f" stroke-width="1.5"/>
+        <polygon points="19,7 31,13 31,25 19,31 7,25 7,13" fill="rgba(232,0,15,0.08)" stroke="rgba(232,0,15,0.3)" stroke-width="1"/>
+        <text x="19" y="24" text-anchor="middle" font-family="Orbitron" font-size="11" font-weight="900" fill="#ffffff">NX</text>
+        <circle cx="19" cy="2" r="2" fill="#e8000f"/>
+        <circle cx="36" cy="10" r="2" fill="#e8000f"/>
+        <circle cx="36" cy="28" r="2" fill="#e8000f"/>
+        <circle cx="19" cy="36" r="2" fill="#e8000f"/>
+        <circle cx="2" cy="28" r="2" fill="#e8000f"/>
+        <circle cx="2" cy="10" r="2" fill="#e8000f"/>
+      </svg>
+    </div>
+    <div class="logo-text">NEXUS</div>
+  </a>
+
+  <nav>
+    <a href="#eventos">EVENTOS</a>
+    <a href="#calendario">CALENDÁRIO</a>
+    <a href="#sobre">SOBRE</a>
+  </nav>
+
+  <div class="header-right">
+    <div class="status-indicator">
+      <div class="status-dot"></div>
+      <span>AO VIVO</span>
+    </div>
+    <button class="btn-logout" id="header-logout-btn" onclick="logout()" style="display:none">SAIR</button>
+    <button class="btn-discord" onclick="loginWithDiscord()" id="header-login-btn">
+      <svg class="discord-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.128 18.116a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+      </svg>
+      ENTRAR COM DISCORD
+    </button>
+  </div>
+</header>
+
+<section id="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero-grid"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span id="hero-badge-text">PLATAFORMA OFICIAL DE EVENTOS COMPETITIVOS</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="word-nexus">NEXUS</span>
+      <span class="word-events">EVENTS</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      A arena oficial de eventos competitivos da <span>NEXUS</span>
+    </p>
+
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="loginWithDiscord()" id="hero-login-btn">
+        <svg style="width:20px;height:20px;fill:white;flex-shrink:0" viewBox="0 0 24 24">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.08.11 18.1.128 18.116a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+        </svg>
+        ENTRAR COM DISCORD
+      </button>
+      <a class="btn-secondary" href="#eventos">⚔ EXPLORAR EVENTOS</a>
+    </div>
+
+    <div class="hero-stat-single">
+      <div class="stat-item">
+        <span class="stat-number" id="stat-events">—</span>
+        <span class="stat-label">Eventos Cadastrados</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number" id="stat-upcoming">—</span>
+        <span class="stat-label">Próximos Eventos</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="eventos">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">Arena Competitiva</div>
+      <h2 class="section-title">EVENTOS <span>ATIVOS</span></h2>
+    </div>
+
+    <div class="events-filter fade-in">
+      <button class="filter-btn active" onclick="filterEvents(this,'todos')">TODOS</button>
+      <input type="text" id="filter-search" placeholder="BUSCAR EVENTO..." oninput="searchEvents(this.value)">
+    </div>
+
+    <div class="events-grid" id="events-grid">
+      <div class="events-empty">
+        NENHUM EVENTO CADASTRADO
+        <span>O administrador ainda não publicou eventos.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="calendario">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">Agenda</div>
+      <h2 class="section-title">CALENDÁRIO DE <span>EVENTOS</span></h2>
+    </div>
+    <div class="calendar-wrap fade-in">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-month" id="cal-month-label">—</div>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <div class="cal-weekday">DOM</div><div class="cal-weekday">SEG</div><div class="cal-weekday">TER</div>
+        <div class="cal-weekday">QUA</div><div class="cal-weekday">QUI</div><div class="cal-weekday">SEX</div><div class="cal-weekday">SÁB</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="admin-panel">
+  <div class="container">
+    <div class="admin-header-bar">
+      <div>
+        <div class="admin-title">⚡ CENTRAL DE COMANDO — NEXUS ADMIN</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-dim);margin-top:4px;letter-spacing:2px;">ACESSO TOTAL AUTORIZADO — MODO ADMINISTRADOR</div>
+      </div>
+      <div class="admin-id" id="admin-id-display"></div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-sidebar">
+        <div class="admin-sidebar-header">⬡ PAINEL DE CONTROLE</div>
+        <div class="admin-nav-item active" onclick="adminTab(this,'create')"><span class="admin-nav-icon">＋</span> CRIAR EVENTO</div>
+        <div class="admin-nav-item" onclick="adminTab(this,'manage')"><span class="admin-nav-icon">⊞</span> GERENCIAR</div>
+        <div class="admin-nav-item" onclick="adminTab(this,'logs')"><span class="admin-nav-icon">◉</span> LOGS</div>
+      </div>
+
+      <div class="admin-main">
+        <div class="admin-stats-row">
+          <div class="admin-stat-card">
+            <span class="admin-stat-num" id="admin-s-total">0</span>
+            <span class="admin-stat-label">Total de Eventos</span>
+          </div>
+          <div class="admin-stat-card">
+            <span class="admin-stat-num" id="admin-s-open">0</span>
+            <span class="admin-stat-label">Inscrições Abertas</span>
+          </div>
+        </div>
+
+        <div class="admin-form-panel" id="admin-tab-create">
+          <div class="admin-form-title">◈ CRIAR NOVO EVENTO</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome do Evento *</label>
+              <input type="text" class="form-input" id="f-name" placeholder="Ex: NEXUS CUP #01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Categoria / Jogo</label>
+              <input type="text" class="form-input" id="f-category" placeholder="Ex: CS2, Valorant, Futebol...">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Data do Evento</label>
+              <input type="date" class="form-input" id="f-date">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Horário</label>
+              <input type="time" class="form-input" id="f-time">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="f-status">
+              <option value="inscricoes">Inscrições Abertas</option>
+              <option value="em-breve">Em Breve</option>
+              <option value="encerrado">Encerrado</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-textarea" id="f-desc" placeholder="Descreva o evento..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Link (Discord / Form)</label>
+            <input type="text" class="form-input" id="f-link" placeholder="https://...">
+          </div>
+          <div class="form-group" style="margin-bottom:24px">
+            <label class="form-label">URL do Banner (imagem)</label>
+            <input type="text" class="form-input" id="f-banner" placeholder="https://exemplo.com/banner.png">
+          </div>
+          <button class="btn-admin" type="button" onclick="publishEvent(); return false;">⚡ PUBLICAR EVENTO</button>
+        </div>
+
+        <div class="admin-form-panel" id="admin-tab-manage" style="display:none">
+          <div class="admin-form-title">⊞ GERENCIAR EVENTOS</div>
+          <div id="admin-events-list"></div>
+        </div>
+
+        <div class="admin-form-panel" id="admin-tab-settings" style="display:none">
+          <div class="admin-form-title">⚙ CONFIGURAÇÕES OAUTH</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-dim);letter-spacing:1px;margin-bottom:20px;line-height:1.8;padding:14px;background:rgba(232,0,15,0.06);border:1px solid var(--red-border)">
+            ◉ O login Discord usa OAuth2 oficial.<br>
+            ◉ Crie um app em: <a href="https://discord.com/developers/applications" target="_blank" style="color:var(--red)">discord.com/developers/applications</a><br>
+            ◉ Adicione o redirect URI: <strong id="redirect-uri-display" style="color:var(--white)">—</strong><br>
+            ◉ Cole o Client ID abaixo e salve.
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Discord Client ID *</label>
+            <input type="text" class="form-input" id="discord-client-id" placeholder="Cole aqui o Client ID do seu app Discord">
+          </div>
+          <button class="btn-admin" onclick="saveSettings()">SALVAR CONFIGURAÇÕES</button>
+        </div>
+
+        <div class="admin-form-panel" id="admin-tab-logs" style="display:none">
+          <div class="admin-form-title">◉ LOGS DO SISTEMA</div>
+          <div id="system-logs" style="font-family:var(--font-mono);font-size:12px;color:var(--white-dim);line-height:2;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">Sobre Nós</div>
+      <h2 class="section-title">A ORGANIZAÇÃO <span>NEXUS</span></h2>
+    </div>
+    <div class="fade-in" style="max-width:800px;font-family:var(--font-body);font-size:17px;color:var(--white-dim);line-height:1.8;">
+      <p style="margin-bottom:20px">A <strong style="color:var(--white)">NEXUS</strong> é uma organização competitiva de e-sports focada em oferecer as melhores experiências de torneio para jogadores brasileiros. Nossa plataforma foi construída para conectar talentos e criar experiências competitivas épicas.</p>
+      <p>Com eventos regulares e uma comunidade crescente, a NEXUS é a arena onde os melhores jogadores provam seu valor. Cada torneio é uma oportunidade de escrever história.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo-text">NEXUS</div>
+        <p class="footer-desc">A arena oficial de eventos competitivos. Construída para campeões.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">PLATAFORMA</div>
+        <ul class="footer-links">
+          <li><a href="#eventos">Eventos</a></li>
+          <li><a href="#calendario">Calendário</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">COMUNIDADE</div>
+        <ul class="footer-links">
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Twitter / X</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© <span>NEXUS EVENTS</span>. Todos os direitos reservados.</div>
+      <div class="footer-copy">PLATAFORMA OFICIAL DE <span>EVENTOS COMPETITIVOS</span></div>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px" id="modal-category">—</div>
+        <div class="modal-title" id="modal-title">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('event-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-detail"><div class="modal-detail-label">DATA</div><div id="modal-date">—</div></div>
+      <div class="modal-detail"><div class="modal-detail-label">HORÁRIO</div><div id="modal-time">—</div></div>
+      <div class="modal-detail"><div class="modal-detail-label">VAGAS</div><div id="modal-slots">—</div></div>
+      <div class="modal-detail"><div class="modal-detail-label">STATUS</div><div id="modal-status">—</div></div>
+      <div class="modal-detail"><div class="modal-detail-label">INTERESSADOS</div><div id="modal-interested" style="color:var(--red);font-weight:700;cursor:pointer" onclick="openInterestedFromModal()">—</div></div>
+      <div class="modal-detail" style="align-items:flex-start"><div class="modal-detail-label" style="margin-top:2px">SOBRE</div><div id="modal-desc" style="color:var(--white-dim);line-height:1.7">—</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="registerEvent()" id="modal-register-btn" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);padding:14px 30px;border:none;">
+        ⚔ INSCREVER-SE NO EVENTO
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">IDENTIFICAÇÃO</div>
+        <div class="modal-title">ENTRAR NA PLATAFORMA</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('login-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="login-modal-desc">
+        ◉ Abra o Discord e copie seu ID de usuário<br>
+        ◉ Cole no campo abaixo junto com seu nome
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">Seu Nome</label>
+        <input type="text" class="login-input" id="login-name-input" placeholder="Como quer ser chamado...">
+        <div class="login-input-error" id="login-name-error">Nome obrigatório</div>
+      </div>
+      <div class="form-group" style="margin-bottom:6px">
+        <label class="form-label">Seu ID do Discord</label>
+        <div class="login-input-wrap">
+          <input type="text" class="login-input" id="login-id-input" placeholder="Cole aqui seu ID do Discord...">
+        </div>
+        <div class="login-input-error" id="login-id-error">ID inválido</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="doLoginManual()" style="clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);padding:14px 30px;border:none;width:100%;justify-content:center;">
+        ⚡ ENTRAR NA ARENA
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- INTERESTED MODAL -->
+<div class="modal-overlay" id="interested-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--red);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px">CONFIRMADOS</div>
+        <div class="modal-title" id="interested-modal-title">INTERESSADOS</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('interested-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="interested-list" id="interested-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cal-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cal-modal-title">EVENTOS DO DIA</div>
+      <button class="modal-close" onclick="closeModal('cal-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="cal-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  NEXUS EVENTS v2 — CORE JS
+// ══════════════════════════════════════════════
+
+const ADMIN_ID = '1010533498706202656';
+const DISCORD_CLIENT_ID = ''; 
+
+const STORAGE_KEY  = 'nexus_events_v2';
+const MONTHS_PT    = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const statusMap   = { inscricoes: 'INSCRIÇÕES ABERTAS', 'em-breve': 'EM BREVE', encerrado: 'ENCERRADO' };
+const statusClass = { inscricoes: 'inscricoes', 'em-breve': '', encerrado: 'encerrado' };
+
+// ── STATE ────────────────────────────────────
+let state = {
+  user: null,
+  isAdmin: false,
+  events: [],
+  interests: {},   // { eventId: [{id, username}] }
+  calYear:  new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+  clientId: '',
+  filterSearch: ''
+};
+
+let currentEvent = null;
+let countdownInterval;
+const logs = [];
+
+// ── INIT ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  renderEvents(state.events);
+  renderCalendar();
+  updateHeroStats();
+  initScrollFade();
+  checkOAuthCallback();
+  updateAdminStats();
+  updateAdminEventsList();
+  addLog('Sistema NEXUS iniciado');
+  
+  const el = document.getElementById('redirect-uri-display');
+  if (el) el.textContent = window.location.origin + window.location.pathname;
+  
+  if (state.clientId || DISCORD_CLIENT_ID !== '') {
+    const cid = document.getElementById('discord-client-id');
+    if (cid) cid.value = state.clientId || DISCORD_CLIENT_ID;
+  }
+
+  // Enter key for login modal
+  ['login-name-input','login-id-input'].forEach(id => {
+    const inp = document.getElementById(id);
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') doLoginManual(); });
+  });
+});
+
+// ── PERSISTENCE ──────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      events: state.events,
+      interests: state.interests,
+      clientId: state.clientId
+    }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (data.events)    state.events    = data.events;
+      if (data.interests) state.interests = data.interests;
+      if (data.clientId)  state.clientId  = data.clientId;
+    }
+  } catch(e) {}
+}
+
+// ── HERO STATS — purely dynamic ──────────────
+function updateHeroStats() {
+  const total    = state.events.length;
+  const upcoming = state.events.filter(e => {
+    const d = new Date(e.date + 'T' + e.time);
+    return d > new Date() && e.status !== 'encerrado';
+  }).length;
+
+  const sE = document.getElementById('stat-events');
+  const sU = document.getElementById('stat-upcoming');
+  if (sE) sE.textContent = total || '—';
+  if (sU) sU.textContent = upcoming || '—';
+
+  const next = state.events
+    .filter(e => new Date(e.date + 'T' + e.time) > new Date())
+    .sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time))[0];
+  const badge = document.getElementById('hero-badge-text');
+  if (badge && next) badge.textContent = `PRÓXIMO EVENTO: ${next.name} — ${formatDate(next.date)}`;
+  else if (badge) badge.textContent = 'PLATAFORMA OFICIAL DE EVENTOS COMPETITIVOS';
+}
+
+// ── PARTICLE CANVAS ──────────────────────────
+(function initCanvas() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function Particle() { this.reset(); }
+  Particle.prototype.reset = function() {
+    this.x = Math.random() * (W||800); this.y = Math.random() * (H||600);
+    this.vx = (Math.random()-.5)*.5; this.vy = (Math.random()-.5)*.5;
+    this.size = Math.random()*2+.5; this.alpha = Math.random()*.6+.1;
+    this.pulse = Math.random()*Math.PI*2; this.pulseSpeed = Math.random()*.02+.01;
+    this.red = Math.random() > .7;
+  };
+  Particle.prototype.update = function() {
+    this.x += this.vx; this.y += this.vy; this.pulse += this.pulseSpeed;
+    if (this.x<0||this.x>W||this.y<0||this.y>H) this.reset();
+  };
+  Particle.prototype.draw = function() {
+    const a = this.alpha*(0.5+0.5*Math.sin(this.pulse));
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+    ctx.fillStyle = this.red ? `rgba(232,0,15,${a})` : `rgba(255,255,255,${a*.4})`;
+    ctx.fill();
+  };
+
+  function initParticles() { particles = []; for (let i=0; i<120; i++) particles.push(new Particle()); }
+  function drawLines() {
+    for (let i=0; i<particles.length; i++) for (let j=i+1; j<particles.length; j++) {
+      const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, d=Math.sqrt(dx*dx+dy*dy);
+      if (d<120) {
+        ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle=`rgba(232,0,15,${(1-d/120)*.08})`; ctx.lineWidth=.5; ctx.stroke();
+      }
+    }
+  }
+  function animate() {
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.7);
+    g.addColorStop(0,'rgba(20,0,2,0.95)'); g.addColorStop(.5,'rgba(5,0,1,0.97)'); g.addColorStop(1,'rgba(0,0,0,0.99)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    drawLines(); particles.forEach(p=>{p.update();p.draw();});
+    requestAnimationFrame(animate);
+  }
+
+  resize(); initParticles(); animate();
+  window.addEventListener('resize', ()=>{ resize(); initParticles(); });
+})();
+
+// ── EVENTS RENDER ────────────────────────────
+function renderEvents(evs) {
+  const grid = document.getElementById('events-grid');
+  if (!grid) return;
+  if (!evs || evs.length === 0) {
+    grid.innerHTML = `<div class="events-empty">NENHUM EVENTO CADASTRADO<span>O administrador ainda não publicou eventos.</span></div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  evs.forEach(ev => {
+    const now = new Date();
+    const eventDate = new Date(ev.date + 'T' + ev.time);
+    const diffMs = eventDate - now;
+
+    const card = document.createElement('div');
+    card.className = 'event-card';
+    card.dataset.id = ev.id;
+    card.dataset.name = (ev.name || '').toLowerCase();
+    card.dataset.category = (ev.category || '').toLowerCase();
+
+    const bannerHtml = ev.banner
+      ? `<img class="card-banner-img" src="${ev.banner}" alt="${ev.name}" onerror="this.style.display='none'">`
+      : `<div class="card-banner-placeholder"><span class="card-banner-text">${(ev.category||'EVENT').substring(0,6)}</span></div>`;
+
+    const prizeHtml = ev.prize ? `<div class="card-prize">${ev.prize}</div>` : '';
+    const countdownHtml = diffMs > 0
+      ? buildCountdown(diffMs)
+      : `<span style="font-family:var(--font-mono);font-size:11px;color:var(--white-dim)">EM ANDAMENTO</span>`;
+
+    const isMine     = state.user && (state.interests[ev.id]||[]).some(u => u.id === state.user.id);
+    const interestCount = (state.interests[ev.id]||[]).length;
+
+    card.innerHTML = `
+      <div class="card-banner">
+        ${bannerHtml}
+        <div class="card-overlay"></div>
+        <div class="card-status ${statusClass[ev.status]||''}">
+          <div class="status-dot"></div>${statusMap[ev.status]||ev.status}
+        </div>
+        ${prizeHtml}
+      </div>
+      <div class="card-body">
+        ${ev.category ? `<div class="card-category">${ev.category}</div>` : ''}
+        <div class="card-title">${ev.name}</div>
+        <div class="card-meta">
+          <div class="card-meta-item"><span class="meta-icon">📅</span>${formatDate(ev.date)}</div>
+          <div class="card-meta-item"><span class="meta-icon">⏰</span>${ev.time}</div>
+          ${ev.slots ? `<div class="card-meta-item"><span class="meta-icon">🎯</span>${ev.slots} vagas</div>` : ''}
+        </div>
+        <div class="card-countdown">
+          <span class="countdown-label">COMEÇA EM</span>
+          <div class="countdown-time" data-ev-id="${ev.id}">${countdownHtml}</div>
+        </div>
+        <div class="card-interest-bar">
+          <button class="btn-interest ${isMine?'active':''}" data-evid="${ev.id}" onclick="toggleInterest('${ev.id}')">
+            ${isMine?'★ TENHO INTERESSE':'☆ TENHO INTERESSE'}
+          </button>
+          <button class="interest-count-btn" data-evid="${ev.id}" onclick="openInterestedModal('${ev.id}')">
+            👥 <span class="interest-count-num">${interestCount}</span>
+          </button>
+        </div>
+        <button class="card-action" onclick="openEventModal('${ev.id}')">VER DETALHES →</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  startCountdowns();
+}
+
+function buildCountdown(ms) {
+  const t = Math.floor(ms/1000);
+  const d = Math.floor(t/86400), h = Math.floor((t%86400)/3600), m = Math.floor((t%3600)/60), s = t%60;
+  return `
+    <div class="countdown-unit"><span class="countdown-val">${pad(d)}</span><span class="countdown-unit-label">DIAS</span></div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit"><span class="countdown-val">${pad(h)}</span><span class="countdown-unit-label">HRS</span></div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit"><span class="countdown-val">${pad(m)}</span><span class="countdown-unit-label">MIN</span></div>
+    <div class="countdown-sep">:</div>
+    <div class="countdown-unit"><span class="countdown-val">${pad(s)}</span><span class="countdown-unit-label">SEG</span></div>`;
+}
+
+function startCountdowns() {
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    document.querySelectorAll('.countdown-time[data-ev-id]').forEach(el => {
+      const ev = state.events.find(e => e.id === el.dataset.evId);
+      if (!ev) return;
+      const ms = new Date(ev.date + 'T' + ev.time) - new Date();
+      el.innerHTML = ms > 0 ? buildCountdown(ms) : `<span style="font-family:var(--font-mono);font-size:11px;color:var(--white-dim)">EM ANDAMENTO</span>`;
+    });
+  }, 1000);
+}
+
+function filterEvents(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const search = state.filterSearch;
+  const filtered = state.events.filter(e => {
+    const matchSearch = !search || e.name.toLowerCase().includes(search) || (e.category||'').toLowerCase().includes(search);
+    return matchSearch;
+  });
+  renderEvents(filtered);
+}
+
+function searchEvents(val) {
+  state.filterSearch = val.trim().toLowerCase();
+  const filtered = state.events.filter(e =>
+    !state.filterSearch ||
+    e.name.toLowerCase().includes(state.filterSearch) ||
+    (e.category||'').toLowerCase().includes(state.filterSearch)
+  );
+  renderEvents(filtered);
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.filter-btn')?.classList.add('active');
+}
+
+// ── CALENDAR ─────────────────────────────────
+function renderCalendar() {
+  const label = document.getElementById('cal-month-label');
+  const grid  = document.getElementById('cal-grid');
+  if (!label || !grid) return;
+  label.textContent = `${MONTHS_PT[state.calMonth]} ${state.calYear}`;
+  grid.innerHTML = '';
+
+  const first = new Date(state.calYear, state.calMonth, 1).getDay();
+  const days  = new Date(state.calYear, state.calMonth+1, 0).getDate();
+  const today = new Date();
+
+  const eventDays = new Set();
+  state.events.forEach(ev => {
+    const d = new Date(ev.date);
+    if (d.getFullYear()===state.calYear && d.getMonth()===state.calMonth) eventDays.add(d.getDate());
+  });
+
+  for (let i=0; i<first; i++) { const e=document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
+
+  for (let d=1; d<=days; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    const isToday  = today.getDate()===d && today.getMonth()===state.calMonth && today.getFullYear()===state.calYear;
+    const hasEvent = eventDays.has(d);
+    if (isToday)  el.classList.add('today');
+    if (hasEvent) el.classList.add('has-event');
+    el.addEventListener('click', () => openCalModal(d));
+    grid.appendChild(el);
+  }
+}
+
+function changeMonth(dir) {
+  state.calMonth += dir;
+  if (state.calMonth < 0)  { state.calMonth = 11; state.calYear--; }
+  if (state.calMonth > 11) { state.calMonth = 0;  state.calYear++; }
+  renderCalendar();
+}
+
+function openCalModal(day) {
+  const dateStr = `${state.calYear}-${pad(state.calMonth+1)}-${pad(day)}`;
+  const dayEvs  = state.events.filter(e => e.date === dateStr);
+  document.getElementById('cal-modal-title').textContent = `EVENTOS — ${pad(day)}/${pad(state.calMonth+1)}/${state.calYear}`;
+  const body = document.getElementById('cal-modal-body');
+  body.innerHTML = dayEvs.length === 0
+    ? '<p style="color:var(--white-dim);font-family:var(--font-body)">Nenhum evento neste dia.</p>'
+    : dayEvs.map(ev => `
+      <div onclick="closeModal('cal-modal');openEventModal('${ev.id}')" style="padding:14px;border:1px solid var(--red-border);background:var(--red-subtle);margin-bottom:12px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%)">
+        ${ev.category ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:4px">${ev.category} — ${ev.time}</div>` : `<div style="font-family:var(--font-mono);font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:4px">${ev.time}</div>`}
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:700">${ev.name}</div>
+        ${ev.prize ? `<div style="font-family:var(--font-body);font-size:13px;color:var(--white-dim);margin-top:4px">Premiação: ${ev.prize}</div>` : ''}
+      </div>`).join('');
+  openModal('cal-modal');
+}
+
+// ── MODAL ─────────────────────────────────────
+function openEventModal(id) {
+  currentEvent = state.events.find(e => e.id === id);
+  if (!currentEvent) return;
+  document.getElementById('modal-category').textContent = currentEvent.category || '';
+  document.getElementById('modal-title').textContent    = currentEvent.name;
+  document.getElementById('modal-date').textContent     = formatDate(currentEvent.date);
+  document.getElementById('modal-time').textContent     = currentEvent.time;
+  document.getElementById('modal-slots').textContent    = currentEvent.slots ? `${currentEvent.slots} vagas` : 'Não informado';
+  document.getElementById('modal-status').textContent   = statusMap[currentEvent.status] || currentEvent.status;
+  document.getElementById('modal-desc').textContent     = currentEvent.desc || 'Sem descrição.';
+
+  const intCount = (state.interests[currentEvent.id]||[]).length;
+  const intEl    = document.getElementById('modal-interested');
+  if (intEl) intEl.textContent = intCount > 0 ? `${intCount} pessoa(s) — ver lista` : '0 pessoas';
+
+  const regBtn = document.getElementById('modal-register-btn');
+  if (regBtn) {
+    regBtn.style.display = currentEvent.status === 'encerrado' ? 'none' : 'flex';
+    const isMine = state.user && (state.interests[currentEvent.id]||[]).some(u => u.id === state.user.id);
+    regBtn.textContent = isMine ? '★ JÁ TENHO INTERESSE' : '⚔ TENHO INTERESSE NESTE EVENTO';
+    if (currentEvent.link) regBtn.onclick = () => { window.open(currentEvent.link,'_blank'); closeModal('event-modal'); };
+    else regBtn.onclick = () => registerEvent();
+  }
+  openModal('event-modal');
+}
+
+function openInterestedFromModal() {
+  if (!currentEvent) return;
+  closeModal('event-modal');
+  openInterestedModal(currentEvent.id);
+}
+
+function registerEvent() {
+  if (!state.user) {
+    closeModal('event-modal');
+    openModal('login-modal');
+    return;
+  }
+  if (!currentEvent || currentEvent.status === 'encerrado') {
+    showNotification('INSCRIÇÕES FECHADAS', 'Este evento está encerrado.');
+    return;
+  }
+  toggleInterest(currentEvent.id);
+  closeModal('event-modal');
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+// Delegate click-outside to document so all modals work regardless of insertion order
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) {
+    closeModal(e.target.id);
+  }
+});
+
+// ── DISCORD LOGIN → MANUAL LOGIN ─────────────────────────
+function loginWithDiscord() {
+  openModal('login-modal');
+  setTimeout(() => document.getElementById('login-name-input').focus(), 300);
+}
+
+function doLoginManual() {
+  const nameVal = document.getElementById('login-name-input').value.trim();
+  const idVal   = document.getElementById('login-id-input').value.trim();
+  const nameErr = document.getElementById('login-name-error');
+  const idErr   = document.getElementById('login-id-error');
+  const nameInp = document.getElementById('login-name-input');
+  const idInp   = document.getElementById('login-id-input');
+
+  let ok = true;
+
+  // Validate name
+  nameErr.classList.remove('show');
+  nameInp.classList.remove('invalid');
+  if (!nameVal) {
+    nameErr.textContent = 'Nome obrigatório';
+    nameErr.classList.add('show');
+    nameInp.classList.add('invalid');
+    ok = false;
+  }
+
+  // Validate ID — só precisa ser numérico e ter mais de 8 dígitos
+  idErr.classList.remove('show');
+  idInp.classList.remove('invalid');
+  if (!idVal || idVal.length <= 8 || !/^\d+$/.test(idVal)) {
+    idErr.textContent = 'ID inválido';
+    idErr.classList.add('show');
+    idInp.classList.add('invalid');
+    ok = false;
+  }
+
+  if (!ok) return;
+
+  const user = { id: idVal, username: nameVal, global_name: nameVal, avatar: null };
+  closeModal('login-modal');
+  setUser(user);
+}
+
+function checkOAuthCallback() { /* manual login — OAuth não é mais necessário */ }
+
+
+
+function setUser(user) {
+  document.getElementById('oauth-loading').classList.remove('show');
+  state.user = user;
+  
+  // Validação real e estrita da permissão do usuário admin com base no ID exato
+  if (user.id === ADMIN_ID) {
+    state.isAdmin = true;
+  } else {
+    state.isAdmin = false;
+  }
+
+  const panel = document.getElementById('user-panel');
+  panel.classList.add('visible');
+  document.querySelector('header').style.top = '46px';
+
+  document.getElementById('user-name-display').textContent = user.username || user.global_name || 'Usuário';
+  document.getElementById('user-role-display').textContent = state.isAdmin ? '⚡ ADMINISTRADOR' : '🎮 JOGADOR';
+  document.getElementById('user-id-display').textContent   = `ID: ${user.id}`;
+
+  const avatar = document.getElementById('user-avatar');
+  if (user.avatar) {
+    avatar.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png" alt="">`;
+  } else {
+    avatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
+  }
+
+  document.getElementById('header-login-btn').style.display = 'none';
+  const headerLogout = document.getElementById('header-logout-btn');
+  if (headerLogout) headerLogout.style.display = 'flex';
+  const heroBtn = document.getElementById('hero-login-btn');
+  if(heroBtn) heroBtn.style.display = 'none';
+
+  if (state.isAdmin) {
+    document.getElementById('admin-panel').classList.add('visible');
+    document.getElementById('admin-id-display').textContent = `ADMIN — ${user.id}`;
+    addLog(`Administrador conectado: ${user.username} (ID: ${user.id})`);
+    showNotification('ACESSO ADMIN AUTORIZADO', `Bem-vindo, ${user.username || user.global_name}! Módulo Administrativo Ativado.`);
+    setTimeout(() => {
+      document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 600);
+  } else {
+    addLog(`Jogador conectado: ${user.username} (ID: ${user.id})`);
+    showNotification('LOGIN REALIZADO', `Bem-vindo à arena, ${user.username || user.global_name}!`);
+  }
+}
+
+// ── INTEREST SYSTEM ───────────────────────────
+function toggleInterest(evId) {
+  if (!state.user) {
+    showNotification('LOGIN NECESSÁRIO', 'Entre na plataforma para marcar interesse em eventos.');
+    openModal('login-modal');
+    return;
+  }
+  if (!state.interests[evId]) state.interests[evId] = [];
+  const list = state.interests[evId];
+  const idx  = list.findIndex(u => u.id === state.user.id);
+  if (idx >= 0) {
+    list.splice(idx, 1);
+    addLog(`Interesse removido: ${state.user.username} → ${evId}`);
+  } else {
+    list.push({ id: state.user.id, username: state.user.username || state.user.global_name || 'Usuário' });
+    addLog(`Interesse: ${state.user.username} → ${evId}`);
+    showNotification('INTERESSE REGISTRADO!', `Você marcou interesse neste evento.`);
+  }
+  saveState();
+  // Update button without full re-render
+  const btn = document.querySelector(`.btn-interest[data-evid="${evId}"]`);
+  const countBtn = document.querySelector(`.interest-count-btn[data-evid="${evId}"]`);
+  if (btn)      updateInterestBtn(btn, evId);
+  if (countBtn) updateInterestCountBtn(countBtn, evId);
+}
+
+function updateInterestBtn(btn, evId) {
+  const list   = state.interests[evId] || [];
+  const isMine = state.user && list.some(u => u.id === state.user.id);
+  btn.classList.toggle('active', isMine);
+  btn.textContent = isMine ? '★ TENHO INTERESSE' : '☆ TENHO INTERESSE';
+}
+
+function updateInterestCountBtn(btn, evId) {
+  const count = (state.interests[evId] || []).length;
+  btn.innerHTML = `👥 <span class="interest-count-num">${count}</span>`;
+}
+
+function openInterestedModal(evId) {
+  const ev     = state.events.find(e => e.id === evId);
+  const list   = state.interests[evId] || [];
+  document.getElementById('interested-modal-title').textContent = ev ? ev.name : 'INTERESSADOS';
+  const container = document.getElementById('interested-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="interested-empty">Nenhum interessado ainda.</div>';
+  } else {
+    container.innerHTML = list.map(u => `
+      <div class="interested-item">
+        <div class="interested-avatar">${(u.username||'U').charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="interested-name">${u.username}</div>
+          <div class="interested-id">ID: ${u.id}</div>
+        </div>
+      </div>`).join('');
+  }
+  openModal('interested-modal');
+}
+
+function logout() {
+  state.user    = null;
+  state.isAdmin = false;
+  document.getElementById('user-panel').classList.remove('visible');
+  document.querySelector('header').style.top = '0';
+  document.getElementById('header-login-btn').style.display = 'flex';
+  const headerLogout = document.getElementById('header-logout-btn');
+  if (headerLogout) headerLogout.style.display = 'none';
+  const heroBtn = document.getElementById('hero-login-btn');
+  if (heroBtn) heroBtn.style.display = 'flex';
+  document.getElementById('admin-panel').classList.remove('visible');
+  showNotification('LOGOUT', 'Você saiu da plataforma NEXUS.');
+  addLog('Sessão encerrada');
+}
+
+// ── ADMIN ─────────────────────────────────────
+function adminTab(el, tab) {
+  if (!state.isAdmin) return;
+  document.querySelectorAll('.admin-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  ['create','manage','logs'].forEach(t => {
+    const panel = document.getElementById('admin-tab-' + t);
+    if (panel) panel.style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'manage') updateAdminEventsList();
+}
+
+function publishEvent() {
+  var name = document.getElementById('f-name').value.trim();
+  if (!name) { showNotification('CAMPO OBRIGATÓRIO', 'Preencha o nome do evento.'); return; }
+  var category = document.getElementById('f-category').value.trim();
+  var date     = document.getElementById('f-date').value;
+  var time     = document.getElementById('f-time').value;
+  var desc     = document.getElementById('f-desc').value.trim();
+  var status   = document.getElementById('f-status').value;
+  var link     = document.getElementById('f-link').value.trim();
+  var banner   = document.getElementById('f-banner').value.trim();
+
+  var newEvent = {
+    id: 'ev_' + Date.now(),
+    name: name,
+    category: category,
+    date: date,
+    time: time,
+    slots: null,
+    desc: desc,
+    status: status,
+    link: link,
+    banner: banner
+  };
+
+  state.events.unshift(newEvent);
+  saveState();
+  renderEvents(state.events);
+  renderCalendar();
+  updateHeroStats();
+  updateAdminStats();
+  updateAdminEventsList();
+  showNotification('EVENTO PUBLICADO!', '"' + name + '" está ao vivo na plataforma.');
+  addLog('Evento criado: ' + name);
+
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-time').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-link').value = '';
+  document.getElementById('f-banner').value = '';
+  document.getElementById('f-status').value = 'inscricoes';
+}
+
+function updateAdminEventsList() {
+  const list = document.getElementById('admin-events-list');
+  if (!list) return;
+  if (state.events.length === 0) {
+    list.innerHTML = '<div style="color:var(--white-dim);font-family:var(--font-mono);font-size:12px;padding:20px 0">Nenhum evento cadastrado.</div>';
+    return;
+  }
+  list.innerHTML = state.events.map(ev => `
+    <div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:14px;border-bottom:1px solid rgba(255,255,255,0.04)">
+      <div>
+        <div style="font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:1px">${ev.name}</div>
+        <div style="font-size:12px;color:var(--white-dim);margin-top:3px;font-family:var(--font-mono)">
+          ${ev.category ? ev.category + ' — ' : ''}${formatDate(ev.date)} às ${ev.time}
+        </div>
+      </div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:${ev.status==='inscricoes'?'#00ff88':ev.status==='encerrado'?'#888':'var(--red)'}">
+        ${statusMap[ev.status]||ev.status}
+      </div>
+      <button onclick="deleteEvent('${ev.id}')" style="background:rgba(232,0,15,0.15);border:1px solid var(--red-border);color:var(--red);padding:6px 14px;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;cursor:pointer;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%)">EXCLUIR</button>
+    </div>
+  `).join('');
+}
+
+function deleteEvent(id) {
+  if (!state.isAdmin) return;
+  const ev = state.events.find(e => e.id === id);
+  state.events = state.events.filter(e => e.id !== id);
+  saveState();
+  renderEvents(state.events);
+  renderCalendar();
+  updateHeroStats();
+  updateAdminStats();
+  updateAdminEventsList();
+  showNotification('EVENTO EXCLUÍDO', ev ? `"${ev.name}" removido.` : 'Evento removido.');
+  addLog(`Evento excluído: ${id}`);
+}
+
+function updateAdminStats() {
+  const total = state.events.length;
+  const open  = state.events.filter(e => e.status === 'inscricoes').length;
+  const sT = document.getElementById('admin-s-total');
+  const sO = document.getElementById('admin-s-open');
+  if (sT) sT.textContent = total;
+  if (sO) sO.textContent = open;
+}
+
+function saveSettings() {
+  const cid = document.getElementById('discord-client-id').value.trim();
+  if (cid) {
+    state.clientId = cid;
+    localStorage.setItem('nexus_client_id', cid);
+    saveState();
+  }
+  showNotification('CONFIGURAÇÕES SALVAS', 'Discord Client ID atualizado. O login OAuth já está ativo.');
+  addLog('Configurações OAuth salvas');
+}
+
+// ── LOGS ──────────────────────────────────────
+function addLog(msg) {
+  const now = new Date();
+  const t   = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  logs.unshift(`<span style="color:var(--red)">[${t}]</span> ${msg}`);
+  const el = document.getElementById('system-logs');
+  if (el) el.innerHTML = logs.slice(0,40).join('<br>');
+}
+
+// ── NOTIFICATION ──────────────────────────────
+let notifTimeout;
+function showNotification(title, msg) {
+  const n = document.getElementById('notification');
+  document.getElementById('notif-title').textContent = title;
+  document.getElementById('notif-msg').textContent   = msg;
+  n.classList.add('show');
+  clearTimeout(notifTimeout);
+  notifTimeout = setTimeout(() => n.classList.remove('show'), 4500);
+}
+
+// ── SCROLL FADE ───────────────────────────────
+function initScrollFade() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: .1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+}
+
+// ── UTILITIES ─────────────────────────────────
+function pad(n) { return String(n).padStart(2,'0'); }
+function formatDate(d) { if (!d) return '—'; const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+});
+</script>
+</body>
+</html>
